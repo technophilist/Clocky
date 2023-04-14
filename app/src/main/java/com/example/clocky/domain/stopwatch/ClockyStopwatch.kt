@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.*
  * An implementation of [Stopwatch].
  */
 class ClockyStopwatch(
-    private val intervalMillis: Long = 1,
     private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : Stopwatch {
     private val _currentMillisStream = MutableStateFlow(0L)
@@ -19,7 +18,7 @@ class ClockyStopwatch(
             isPaused = false
             while (!isPaused) {
                 _currentMillisStream.value = _currentMillisStream.value + 1
-                delay(intervalMillis)
+                delay(1)
             }
         }
     }
