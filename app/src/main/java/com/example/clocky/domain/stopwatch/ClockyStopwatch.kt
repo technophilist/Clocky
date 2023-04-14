@@ -15,13 +15,11 @@ class ClockyStopwatch(
     override val currentMillisStream = _currentMillisStream.asStateFlow()
 
     override suspend fun start() {
-        coroutineScope {
-            withContext(defaultDispatcher) {
-                isPaused = false
-                while (!isPaused) {
-                    _currentMillisStream.value = _currentMillisStream.value + 1
-                    delay(intervalMillis)
-                }
+        withContext(defaultDispatcher) {
+            isPaused = false
+            while (!isPaused) {
+                _currentMillisStream.value = _currentMillisStream.value + 1
+                delay(intervalMillis)
             }
         }
     }
