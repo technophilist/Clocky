@@ -33,7 +33,16 @@ fun Stopwatch(stopWatchViewModel: StopWatchViewModel) {
     )
 }
 
-
+/**
+ * A stopwatch composable.
+ *
+ * @param elapsedTimeText A lambda that returns the current elapsed time as a string.
+ * @param onPlayButtonClick callback that will be executed when the play button is clicked.
+ * @param onPauseButtonClick callback that will be executed when the pause button is clicked.
+ * @param onStopButtonClick callback that will be executed when the stop button is clicked.
+ * @param isStopButtonEnabled indicates whether or not the stop button is enabled.
+ * @param isStopwatchRunning indicates whether or not the stopwatch is currently running.
+ */
 @Composable
 fun Stopwatch(
     elapsedTimeText: () -> String,
