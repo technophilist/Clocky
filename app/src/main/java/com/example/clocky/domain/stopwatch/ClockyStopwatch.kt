@@ -16,7 +16,7 @@ class ClockyStopwatch(
     override suspend fun start() {
         withContext(defaultDispatcher) {
             isPaused = false
-            while (!isPaused) {
+            while (!isPaused && isActive) {
                 _currentMillisStream.value = _currentMillisStream.value + 1
                 delay(1)
             }
