@@ -10,7 +10,7 @@ interface Stopwatch {
     /**
      * A flow of current milliseconds elapsed since the stopwatch started.
      */
-    val currentMillisStream: Flow<Long>
+    val millisElapsedStream: Flow<Long>
 
     /**
      * Starts the stopwatch. Please note that **this method suspends until the stopwatch is

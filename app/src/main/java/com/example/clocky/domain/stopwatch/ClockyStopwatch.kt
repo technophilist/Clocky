@@ -9,15 +9,15 @@ import kotlinx.coroutines.flow.*
 class ClockyStopwatch(
     private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : Stopwatch {
-    private val _currentMillisStream = MutableStateFlow(0L)
+    private val _millisElapsedStream = MutableStateFlow(0L)
     private var isPaused = true
-    override val currentMillisStream = _currentMillisStream.asStateFlow()
+    override val millisElapsedStream = _millisElapsedStream.asStateFlow()
 
     override suspend fun start() {
         withContext(defaultDispatcher) {
             isPaused = false
             while (!isPaused && isActive) {
-                _currentMillisStream.value = _currentMillisStream.value + 1
+                _millisElapsedStream.value = _millisElapsedStream.value + 1
                 delay(1)
             }
         }
@@ -29,6 +29,6 @@ class ClockyStopwatch(
 
     override fun reset() {
         isPaused = true
-        _currentMillisStream.value = 0L
+        _millisElapsedStream.value = 0L
     }
 }

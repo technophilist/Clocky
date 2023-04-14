@@ -27,7 +27,7 @@ class ClockyStopwatchTest {
         runTest {
             val millisEmissions = mutableListOf<Long>()
             with(backgroundScope) {
-                launch { stopwatch.currentMillisStream.toList(millisEmissions) }
+                launch { stopwatch.millisElapsedStream.toList(millisEmissions) }
                 // given a stop watch that runs for 500 millis
                 launch { stopwatch.start() }
             }
@@ -41,7 +41,7 @@ class ClockyStopwatchTest {
     fun `Correct values are emitted when pausing and restarting the stopwatch`() = runTest {
         val millisEmissions = mutableListOf<Long>()
         with(backgroundScope) {
-            launch { stopwatch.currentMillisStream.toList(millisEmissions) }
+            launch { stopwatch.millisElapsedStream.toList(millisEmissions) }
             launch { stopwatch.start() }
         }
         // when the stopwatch runs for 250ms and gets paused
@@ -62,7 +62,7 @@ class ClockyStopwatchTest {
         with(backgroundScope) {
             // todo need to understand why this test fails without UnConfinedDispatcher()
             launch(UnconfinedTestDispatcher()) {
-                stopwatch.currentMillisStream.toList(millisEmissions)
+                stopwatch.millisElapsedStream.toList(millisEmissions)
             }
             launch { stopwatch.start() }
         }
