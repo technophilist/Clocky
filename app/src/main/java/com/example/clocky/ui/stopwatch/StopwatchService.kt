@@ -27,12 +27,3 @@ class StopwatchService : Service() {
         val stopwatch = this@StopwatchService.stopwatch as Stopwatch
     }
 }
-/*
-
-class StopwatchService : Service() {
-    val stopwatch = ClockyStopwatch()
-
-
-
-}
- */
