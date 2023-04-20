@@ -55,6 +55,6 @@ class StopwatchService : Service() {
      * @property stopwatch The stopwatch instance used by this service.
      */
     inner class StopwatchServiceBinder : Binder() {
-        val stopwatch = this@StopwatchService.stopwatch as Stopwatch
+        val service: StopwatchService = this@StopwatchService
     }
 }
