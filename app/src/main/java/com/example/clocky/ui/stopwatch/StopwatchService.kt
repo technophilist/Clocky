@@ -6,17 +6,12 @@ import android.os.Binder
 import android.os.IBinder
 import com.example.clocky.di.ClockyApplication
 import com.example.clocky.domain.millisformatter.MillisFormatter
-import com.example.clocky.domain.stopwatch.ClockyStopwatch
 import com.example.clocky.domain.stopwatch.Stopwatch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-
 /**
  * A service that provides a stopwatch.
  */
@@ -34,12 +29,6 @@ class StopwatchService : Service() {
             millisFormatter = provideMillisFormatter()
             formattedElapsedMillisStream = stopwatch
                 .millisElapsedStream
-                .map {
-                    Instant
-                        .ofEpochMilli(0)
-                        .plusMillis(it)
-                        .toEpochMilli()
-                }
                 .map(millisFormatter::formatMillis)
         }
     }
