@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import com.example.clocky.di.ClockyApplication
+import com.example.clocky.domain.millisformatter.MillisFormatter
 import com.example.clocky.domain.stopwatch.ClockyStopwatch
 import com.example.clocky.domain.stopwatch.Stopwatch
 import kotlinx.coroutines.CoroutineScope
@@ -17,12 +18,14 @@ import kotlinx.coroutines.launch
 class StopwatchService : Service() {
     private lateinit var stopwatch: Stopwatch
     private lateinit var coroutineScope: CoroutineScope
+    private lateinit var millisFormatter: MillisFormatter
     private val stopwatchServiceBinder = StopwatchServiceBinder()
 
     override fun onCreate() {
         with((application as ClockyApplication).getServiceContainer()) {
             stopwatch = provideStopwatch()
             coroutineScope = provideCoroutineScope()
+            millisFormatter = provideMillisFormatter()
         }
     }
 
