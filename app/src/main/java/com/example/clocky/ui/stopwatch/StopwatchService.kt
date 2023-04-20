@@ -13,10 +13,10 @@ import com.example.clocky.domain.stopwatch.Stopwatch
 class StopwatchService : Service() {
     // todo inject stopwatch
     private val stopwatch = ClockyStopwatch()
-
+    private val stopwatchServiceBinder = StopwatchServiceBinder()
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_NOT_STICKY
 
-    override fun onBind(intent: Intent): IBinder = StopwatchServiceBinder()
+    override fun onBind(intent: Intent): IBinder = stopwatchServiceBinder
 
     /**
      * A binder that provides access to the stopwatch instance used by this service.
