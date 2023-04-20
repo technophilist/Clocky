@@ -10,6 +10,7 @@ import com.example.clocky.domain.stopwatch.ClockyStopwatch
 import com.example.clocky.domain.stopwatch.Stopwatch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -20,25 +21,26 @@ import java.time.ZoneId
  * A service that provides a stopwatch.
  */
 class StopwatchService : Service() {
+    private val stopwatchServiceBinder = StopwatchServiceBinder()
     private lateinit var stopwatch: Stopwatch
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var millisFormatter: MillisFormatter
-    private val stopwatchServiceBinder = StopwatchServiceBinder()
-    val formattedElapsedMillisStream = stopwatch
-        .millisElapsedStream
-        .map {
-            Instant
-                .ofEpochMilli(0)
-                .plusMillis(it)
-                .toEpochMilli()
-        }
-        .map(millisFormatter::formatMillis)
+    lateinit var formattedElapsedMillisStream: Flow<String>
 
     override fun onCreate() {
         with((application as ClockyApplication).getServiceContainer()) {
             stopwatch = provideStopwatch()
             coroutineScope = provideCoroutineScope()
             millisFormatter = provideMillisFormatter()
+            formattedElapsedMillisStream = stopwatch
+                .millisElapsedStream
+                .map {
+                    Instant
+                        .ofEpochMilli(0)
+                        .plusMillis(it)
+                        .toEpochMilli()
+                }
+                .map(millisFormatter::formatMillis)
         }
     }
 
