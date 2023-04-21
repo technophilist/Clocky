@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
- * A service that provides a stopwatch.
+ * A service that manages a stopwatch.
  */
 class StopwatchService : Service() {
     private val stopwatchServiceBinder = StopwatchServiceBinder()
@@ -38,6 +38,9 @@ class StopwatchService : Service() {
         }
     }
 
+    /**
+     * Starts the stopwatch and sets its state to [StopwatchState.RUNNING].
+     */
     fun startStopwatch() {
         _stopwatchState.value = StopwatchState.RUNNING
         coroutineScope.launch {
@@ -45,11 +48,17 @@ class StopwatchService : Service() {
         }
     }
 
+    /**
+     * Pauses the stopwatch and sets its state to [StopwatchState.PAUSED].
+     */
     fun pauseStopwatch() {
         stopwatch.pause()
         _stopwatchState.value = StopwatchState.PAUSED
     }
 
+    /**
+     * Stops and resets the stopwatch. It also sets its state to [StopwatchState.RESET].
+     */
     fun stopAndResetStopwatch() {
         stopwatch.reset()
         _stopwatchState.value = StopwatchState.RESET
