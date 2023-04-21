@@ -10,17 +10,22 @@ import com.example.clocky.domain.stopwatch.Stopwatch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+
 /**
  * A service that provides a stopwatch.
  */
 class StopwatchService : Service() {
     private val stopwatchServiceBinder = StopwatchServiceBinder()
+    private val _stopwatchState = MutableStateFlow(StopwatchState.RESET)
     private lateinit var stopwatch: Stopwatch
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var millisFormatter: MillisFormatter
     lateinit var formattedElapsedMillisStream: Flow<String>
+    val stopwatchState = _stopwatchState as Flow<StopwatchState>
+
 
     override fun onCreate() {
         with((application as ClockyApplication).getServiceContainer()) {
@@ -34,7 +39,7 @@ class StopwatchService : Service() {
     }
 
     fun startStopwatch() {
-        // todo handle case where this method is called multiple times by different threads
+        _stopwatchState.value = StopwatchState.RUNNING
         coroutineScope.launch {
             stopwatch.start()
         }
@@ -42,10 +47,12 @@ class StopwatchService : Service() {
 
     fun pauseStopwatch() {
         stopwatch.pause()
+        _stopwatchState.value = StopwatchState.PAUSED
     }
 
     fun stopAndResetStopwatch() {
         stopwatch.reset()
+        _stopwatchState.value = StopwatchState.RESET
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_NOT_STICKY
@@ -64,4 +71,9 @@ class StopwatchService : Service() {
     inner class StopwatchServiceBinder : Binder() {
         val service: StopwatchService = this@StopwatchService
     }
+
+    /**
+     * An enum representing the different states of the stopwatch.
+     */
+    enum class StopwatchState { RESET, PAUSED, RUNNING }
 }
