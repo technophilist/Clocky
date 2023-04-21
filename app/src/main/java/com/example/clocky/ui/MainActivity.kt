@@ -7,70 +7,59 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.clocky.domain.stopwatch.Stopwatch
-import com.example.clocky.ui.stopwatch.StopWatchViewModel
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.clocky.ui.stopwatch.Stopwatch
 import com.example.clocky.ui.stopwatch.StopwatchService
-import com.example.clocky.ui.stopwatch.StopwatchViewModelFactory
 import com.example.clocky.ui.theme.ClockyTheme
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.util.logging.LogManager
 
 class MainActivity : ComponentActivity() {
-    private var stopwatch by mutableStateOf<Stopwatch?>(null)
     private var serviceConnection: ServiceConnection? = null
+    private var stopwatchService: StopwatchService? = null
+    private val elapsedTimeStringStream = MutableStateFlow("00:00:00:00")
+    private val stopwatchStateStream = MutableStateFlow<StopwatchService.StopwatchState?>(null)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        setContent {
-            ClockyTheme {
-                stopwatch?.let {
-                    val stopwatchViewModelFactory =
-                        remember { StopwatchViewModelFactory(stopwatch = it) }
-                    val stopWatchViewModel =
-                        viewModel<StopWatchViewModel>(factory = stopwatchViewModelFactory)
-                    val elapsedTimeString by stopWatchViewModel.currentMillisTextStream
-                        .collectAsStateWithLifecycle(initialValue = "00:00:00:00")
-                    val uiState by stopWatchViewModel.uiState.collectAsStateWithLifecycle()
-                    Stopwatch(
-                        elapsedTimeText = { elapsedTimeString },
-                        onPlayButtonClick = stopWatchViewModel::start,
-                        onPauseButtonClick = stopWatchViewModel::pause,
-                        onStopButtonClick = {
-                            stopWatchViewModel.stopAndReset()
-                            stopStopwatchService()
-                        },
-                        isStopButtonEnabled = uiState != StopWatchViewModel.UiState.RESET,
-                        isStopwatchRunning = uiState == StopWatchViewModel.UiState.RUNNING
-                    )
-                }
-            }
-        }
+        if (!isStopwatchServiceRunning()) startStopwatchService()
+        bindStopwatchService()
+        setContent { ClockyTheme(content = { ClockyApp() }) }
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (isStopwatchServiceRunning()) {
-            bindStopwatchService()
-        } else {
-            startStopwatchService()
-            bindStopwatchService()
-        }
+    @Composable
+    private fun ClockyApp() {
+        val elapsedTimeString by elapsedTimeStringStream.collectAsStateWithLifecycle()
+        val stopwatchState by stopwatchStateStream.collectAsStateWithLifecycle()
+        Stopwatch(
+            elapsedTimeText = { elapsedTimeString },
+            onPlayButtonClick = { stopwatchService?.startStopwatch() },
+            onPauseButtonClick = { stopwatchService?.pauseStopwatch() },
+            onStopButtonClick = { stopwatchService?.stopAndResetStopwatch() },
+            isStopButtonEnabled = stopwatchState != StopwatchService.StopwatchState.RESET,
+            isStopwatchRunning = stopwatchState == StopwatchService.StopwatchState.RUNNING
+        )
+
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         serviceConnection?.let(::unbindService)
+        if (
+            isStopwatchServiceRunning() &&
+            stopwatchStateStream.value == StopwatchService.StopwatchState.RESET
+        ) stopStopwatchService()
     }
+
     /**
      * Checks if the [StopwatchService] is running.
      *
@@ -79,9 +68,10 @@ class MainActivity : ComponentActivity() {
     @Suppress("DEPRECATION")
     private fun isStopwatchServiceRunning(): Boolean {
         return (getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
-            .getRunningServices(4)
+            .getRunningServices(Int.MAX_VALUE)
             .any { it.service.className == StopwatchService::class.java.name }
     }
+
     /**
      * Used to start the [StopwatchService].
      */
@@ -89,6 +79,7 @@ class MainActivity : ComponentActivity() {
         val intent = Intent(this, StopwatchService::class.java)
         startService(intent)
     }
+
     /**
      * Used to stop the [StopwatchService].
      */
@@ -96,6 +87,7 @@ class MainActivity : ComponentActivity() {
         val intent = Intent(this, StopwatchService::class.java)
         stopService(intent)
     }
+
     /**
      * Used to bind the activity to the [StopwatchService].
      */
@@ -108,14 +100,41 @@ class MainActivity : ComponentActivity() {
             Context.BIND_IMPORTANT
         )
     }
+
     /**
      * Creates a [ServiceConnection] to connect to the [StopwatchService].
      */
     private fun createServiceConnection() = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, binder: IBinder) {
             val stopwatchServiceBinder = binder as StopwatchService.StopwatchServiceBinder
-            stopwatch = stopwatchServiceBinder.stopwatch
+            stopwatchService = stopwatchServiceBinder.service
+            repeatOnLifecycleInLifecycleScope {
+                stopwatchService!!
+                    .formattedElapsedMillisStream
+                    .collect { elapsedTimeStringStream.value = it }
+            }
+            repeatOnLifecycleInLifecycleScope {
+                stopwatchService!!
+                    .stopwatchState
+                    .collect { stopwatchStateStream.value = it }
+            }
         }
-        override fun onServiceDisconnected(componentName: ComponentName) {}
+
+        override fun onServiceDisconnected(componentName: ComponentName) {
+            serviceConnection = null
+        }
     }
+
+    /**
+     * A utility function that is a shortcut for the following code snippet.
+     * ```
+     * lifecycleScope.launch {
+     *       repeatOnLifecycle(...){...}
+     * }
+     * ```
+     */
+    private fun ComponentActivity.repeatOnLifecycleInLifecycleScope(
+        state: Lifecycle.State = Lifecycle.State.STARTED,
+        block: suspend CoroutineScope.() -> Unit
+    ): Job = lifecycleScope.launch { repeatOnLifecycle(state, block) }
 }
