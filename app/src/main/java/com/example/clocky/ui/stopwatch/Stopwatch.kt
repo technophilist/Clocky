@@ -52,23 +52,20 @@ fun Stopwatch(
     isStopButtonEnabled: Boolean,
     isStopwatchRunning: Boolean
 ) {
-    Box {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            ElapsedTimeText(timeText = elapsedTimeText)
-            Spacer(modifier = Modifier.size(16.dp))
-            ButtonRow(
-                onPlayButtonClick = onPlayButtonClick,
-                onPauseButtonClick = onPauseButtonClick,
-                onStopButtonClick = onStopButtonClick,
-                isStopButtonEnabled = isStopButtonEnabled,
-                isStopwatchRunning = isStopwatchRunning
-            )
-        }
-        TimeText()
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ElapsedTimeText(timeText = elapsedTimeText)
+        Spacer(modifier = Modifier.size(16.dp))
+        ButtonRow(
+            onPlayButtonClick = onPlayButtonClick,
+            onPauseButtonClick = onPauseButtonClick,
+            onStopButtonClick = onStopButtonClick,
+            isStopButtonEnabled = isStopButtonEnabled,
+            isStopwatchRunning = isStopwatchRunning
+        )
     }
 }
 
