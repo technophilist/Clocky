@@ -1,6 +1,12 @@
 package com.example.clocky.ui.stopwatch
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -9,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -80,7 +88,8 @@ private fun ElapsedTimeText(timeText: () -> String, modifier: Modifier = Modifie
         modifier = modifier,
         text = timeText(),
         fontSize = 20.sp,
-        fontWeight = FontWeight.SemiBold
+        fontWeight = FontWeight.SemiBold,
+        color = Color.White
     )
 }
 
@@ -93,7 +102,13 @@ private fun ButtonRow(
     isStopwatchRunning: Boolean,
 ) {
     val playPauseIcon = if (isStopwatchRunning) Icons.Filled.Pause else Icons.Filled.PlayArrow
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    val contentSizeAnimationDurationMillis = 100
+    Row(
+        modifier = Modifier
+            .clip(CircleShape)
+            .animateContentSize(animationSpec = tween(contentSizeAnimationDurationMillis)),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         Button(
             onClick = {
                 if (isStopwatchRunning) onPauseButtonClick()
@@ -101,10 +116,15 @@ private fun ButtonRow(
             },
             content = { Icon(imageVector = playPauseIcon, contentDescription = null) }
         )
-        Button(
-            enabled = isStopButtonEnabled,
-            onClick = onStopButtonClick,
-            content = { Icon(imageVector = Icons.Filled.Stop, contentDescription = null) }
-        )
+        AnimatedVisibility(
+            visible = isStopButtonEnabled,
+            enter = fadeIn(animationSpec = tween(delayMillis = contentSizeAnimationDurationMillis)),
+            exit = fadeOut(animationSpec = tween(durationMillis = contentSizeAnimationDurationMillis))
+        ) {
+            Button(
+                onClick = onStopButtonClick,
+                content = { Icon(imageVector = Icons.Filled.Stop, contentDescription = null) }
+            )
+        }
     }
 }
