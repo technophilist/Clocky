@@ -5,12 +5,9 @@ import androidx.wear.compose.material.Colors
 
 
 
-val Yellow = Color(0xFFFFCB66)
-val Coral = Color(0xFFF3A397)
-val MintGreen = Color(0xFFACD6B8)
+val Blue = Color(0xff4285f4)
 
 internal val wearColorPalette: Colors = Colors(
-    primary = Yellow,
-    secondary = MintGreen,
-    secondaryVariant = Coral
+    primary = Blue,
+    onPrimary = Color.White
 )
