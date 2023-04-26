@@ -124,14 +124,15 @@ fun DottedCircularProgressBackground(
                 val radius = size.width / 2
                 // draw trail of the leading dot
                 for (i in coordinates.indices) {
-                    for (j in (i - 5) until i) {
+                    for (j in (i - 6) until i) {
                         if (j !in coordinates.indices) break
                         val alpha = when (j) {
-                            i - 1 -> 0.8f // alpha to be used for the first dot behind the leading dot
-                            i - 2 -> 0.6f // alpha to be used for the second dot behind the leading dot
-                            i - 3 -> 0.4f // alpha to be used for the third dot behind the leading dot
-                            i - 4 -> 0.2f // alpha to be used for the fourth dot behind the leading dot
-                            else -> 0f // alpha to be used for the fifth dot behind the leading dot
+                            i - 1 -> 1f // alpha to be used for the first dot behind the leading dot
+                            i - 2 -> 0.8f // alpha to be used for the second dot behind the leading dot
+                            i - 3 -> 0.6f // alpha to be used for the third dot behind the leading dot
+                            i - 4 -> 0.4f // alpha to be used for the fourth dot behind the leading dot
+                            i - 5 -> 0.2f // alpha to be used for the fifth dot behind the leading dot
+                            else -> 0f // alpha to be used for the sixth dot behind the leading dot
                         }
                         drawCircle(
                             color = dotColor,
