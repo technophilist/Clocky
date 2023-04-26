@@ -14,6 +14,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.clocky.ui.components.DottedCircularProgressBackground
+import com.example.clocky.ui.components.DottedCircularProgressBackgroundState
+import com.example.clocky.ui.components.rememberDottedCircularProgressBackgroundState
 import com.example.clocky.ui.stopwatch.Stopwatch
 import com.example.clocky.ui.stopwatch.StopwatchService
 import com.example.clocky.ui.theme.ClockyTheme
@@ -40,15 +43,26 @@ class MainActivity : ComponentActivity() {
     private fun ClockyApp() {
         val elapsedTimeString by elapsedTimeStringStream.collectAsStateWithLifecycle()
         val stopwatchState by stopwatchStateStream.collectAsStateWithLifecycle()
-        Stopwatch(
-            elapsedTimeText = { elapsedTimeString },
-            onPlayButtonClick = { stopwatchService?.startStopwatch() },
-            onPauseButtonClick = { stopwatchService?.pauseStopwatch() },
-            onStopButtonClick = { stopwatchService?.stopAndResetStopwatch() },
-            isStopButtonEnabled = stopwatchState != StopwatchService.StopwatchState.RESET,
-            isStopwatchRunning = stopwatchState == StopwatchService.StopwatchState.RUNNING
-        )
-
+        val dottedProgressBackgroundState = rememberDottedCircularProgressBackgroundState()
+        DottedCircularProgressBackground(state = dottedProgressBackgroundState) {
+            Stopwatch(
+                elapsedTimeText = { elapsedTimeString },
+                onPlayButtonClick = {
+                    stopwatchService?.startStopwatch()
+                    dottedProgressBackgroundState.start()
+                },
+                onPauseButtonClick = {
+                    stopwatchService?.pauseStopwatch()
+                    dottedProgressBackgroundState.pause()
+                },
+                onStopButtonClick = {
+                    stopwatchService?.stopAndResetStopwatch()
+                    dottedProgressBackgroundState.stopAndReset()
+                },
+                isStopButtonEnabled = stopwatchState != StopwatchService.StopwatchState.RESET,
+                isStopwatchRunning = stopwatchState == StopwatchService.StopwatchState.RUNNING
+            )
+        }
     }
 
     override fun onDestroy() {
