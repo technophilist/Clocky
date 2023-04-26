@@ -34,6 +34,13 @@ class DottedCircularProgressBackgroundState(isInitiallyRunning: Boolean) {
     var isRunning by mutableStateOf(isInitiallyRunning)
         private set
 
+    init {
+        // fixme - though the animation starts, if this class is recreated after a config change
+        //  the animation will always start from 90 degrees, which is not the desired
+        //  result.
+        if (isInitiallyRunning) start()
+    }
+
     /**
      * Used to start the animation.
      */
