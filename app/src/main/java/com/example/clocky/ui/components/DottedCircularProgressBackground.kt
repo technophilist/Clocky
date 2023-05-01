@@ -40,7 +40,8 @@ class DottedCircularProgressBackgroundState(isInitiallyRunning: Boolean) {
         private set
 
     /**
-     * A [State] that indicates that number of iterations
+     * A [State] that indicates that number of iterations that have occurred around the
+     * circumference of the circle.
      */
     var numberOfIterationsAroundCircle by mutableStateOf(0)
         private set
