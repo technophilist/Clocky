@@ -44,6 +44,12 @@ class MainActivity : ComponentActivity() {
         val elapsedTimeString by elapsedTimeStringStream.collectAsStateWithLifecycle()
         val stopwatchState by stopwatchStateStream.collectAsStateWithLifecycle()
         val dottedProgressBackgroundState = rememberDottedCircularProgressBackgroundState()
+        val isStopButtonEnabled = remember(stopwatchState) {
+            stopwatchState != null && stopwatchState != StopwatchService.StopwatchState.RESET
+        }
+        val isStopwatchRunning = remember(stopwatchState) {
+            stopwatchState == StopwatchService.StopwatchState.RUNNING
+        }
         DottedCircularProgressBackground(state = dottedProgressBackgroundState) {
             Stopwatch(
                 elapsedTimeText = { elapsedTimeString },
@@ -59,8 +65,8 @@ class MainActivity : ComponentActivity() {
                     stopwatchService?.stopAndResetStopwatch()
                     dottedProgressBackgroundState.stopAndReset()
                 },
-                isStopButtonEnabled = stopwatchState != StopwatchService.StopwatchState.RESET,
-                isStopwatchRunning = stopwatchState == StopwatchService.StopwatchState.RUNNING
+                isStopButtonEnabled = isStopButtonEnabled,
+                isStopwatchRunning = isStopwatchRunning
             )
         }
     }
