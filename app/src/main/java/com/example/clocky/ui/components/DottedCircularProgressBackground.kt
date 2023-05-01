@@ -25,29 +25,45 @@ import kotlin.math.sin
 
 /**
  * This class holds the state of the [DottedCircularProgressBackground].
- *
- * @property isReset A property that indicates whether the progress has been reset.
- * @property isRunning A property that indicates whether the animation is currently running.
  */
 class DottedCircularProgressBackgroundState(isInitiallyRunning: Boolean) {
+    /**
+     * A [State] that indicates whether the animation is in the "Reset" state.
+     */
     var isReset by mutableStateOf(true)
         private set
 
+    /**
+     * A [State] that indicates whether the animation is currently running.
+     */
     var isRunning by mutableStateOf(isInitiallyRunning)
         private set
 
+    /**
+     * A [State] that indicates that number of iterations
+     */
     var numberOfIterationsAroundCircle by mutableStateOf(0)
         private set
 
+    /**
+     * A property that holds the previously emitted degree value. Used to restore
+     * the state of the animation when it is resumed after getting paused.
+     */
     private var previouslyEmittedDegree: Int? = null
 
     /**
      * // todo need to update the docs of this entire class
-     * [transformLatest] has to be used here because of the following reason.
-     * If the transform block of [combine] method gets blocked by an infinite loop (in this case,
-     * an infinite loop of degrees), then any updates to the flows of the [combine] block will not
-     * trigger the [combine] block's transform block, because the transform block is already
-     * performing a blocking operation.
+
+     */
+    /**
+     * A [Flow] that emits the current degree, from the center of the drawing area, where
+     * a dot is about to be drawn.
+     *
+     * Note: The [transformLatest] operator has to be used here because of the following reason.
+     * If the transform block of [combine] operator gets blocked by an infinite loop (in this case,
+     * an infinite loop of degrees), then any updates to the flows that are passed as a parameter
+     * of the [combine] block will not trigger the [combine] operator's transform block, because the
+     * transform block is already performing an operation that never stops (ie. a blocking operation).
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     var currentDegree = combine(
