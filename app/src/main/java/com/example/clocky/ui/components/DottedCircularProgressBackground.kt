@@ -13,10 +13,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.MaterialTheme
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -98,70 +101,68 @@ fun DottedCircularProgressBackground(
     dotColor: Color = MaterialTheme.colors.primary,
     content: @Composable () -> Unit
 ) {
-
-    val coordinates = remember { mutableStateListOf<Pair<Float, Float>>() }
-    val initialDegree = remember { -90 }
-    var currentDegree by rememberSaveable { mutableStateOf(initialDegree) }
-    LaunchedEffect(state.isRunning, state.isReset) {
+    var isPrefilledCanvasVisible by remember { mutableStateOf(false) }
+    val stepValue = 6
+    var previouslyEmittedDegree by rememberSaveable { mutableStateOf(-90) }
+    val currentDegree by remember(state.isReset, state.isRunning) {
         if (state.isReset) {
-            currentDegree = initialDegree
-            coordinates.clear()
-            return@LaunchedEffect
+            previouslyEmittedDegree = -90
+            isPrefilledCanvasVisible = false
+            return@remember emptyFlow<Int>()
         }
-        while (state.isRunning && isActive) {
-            for (degree in currentDegree..270 step 6) {
-                delay(25)
-                val degreeInRadians = Math.toRadians(degree.toDouble()).toFloat()
-                val x = cos(degreeInRadians)
-                val y = sin(degreeInRadians)
-                coordinates.add(Pair(x, y))
-                currentDegree = degree
+        if (!state.isRunning) return@remember emptyFlow<Int>()
+        flow {
+            while (state.isRunning) {
+                for (i in (previouslyEmittedDegree..270) step stepValue) {
+                    delay(30)
+                    emit(i)
+                    previouslyEmittedDegree = i
+                }
+                previouslyEmittedDegree = -90
+                if (!isPrefilledCanvasVisible) isPrefilledCanvasVisible = true
             }
-            currentDegree = initialDegree
         }
-    }
+    }.collectAsStateWithLifecycle(initialValue = -90)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
+        if (isPrefilledCanvasVisible) {
+            CanvasWithDottedCircle(
+                modifier = Modifier.fillMaxSize(),
+                radius = { size.width / 2 },
+                stepValue = stepValue
+            )
+        }
         if (!state.isReset) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val radius = size.width / 2
-                // draw trail of the leading dot
-                for (i in coordinates.indices) {
-                    for (j in (i - 6) until i) {
-                        if (j !in coordinates.indices) break
-                        val alpha = when (j) {
-                            i - 1 -> 1f // alpha to be used for the first dot behind the leading dot
-                            i - 2 -> 0.8f // alpha to be used for the second dot behind the leading dot
-                            i - 3 -> 0.6f // alpha to be used for the third dot behind the leading dot
-                            i - 4 -> 0.4f // alpha to be used for the fourth dot behind the leading dot
-                            i - 5 -> 0.2f // alpha to be used for the fifth dot behind the leading dot
-                            else -> 0f // alpha to be used for the sixth dot behind the leading dot
-                        }
-                        drawCircle(
-                            color = dotColor,
-                            center = Offset(
-                                x = center.x + (radius * coordinates[j].first),
-                                y = center.y + (radius * coordinates[j].second)
-                            ),
-                            radius = 4f,
-                            colorFilter = ColorFilter.tint(
-                                color = Color.White.copy(alpha = alpha),
-                                blendMode = BlendMode.SrcOver
-                            )
-                        )
+                for (degree in -90..currentDegree step stepValue) {
+                    // apply color filters from the 6th dot from the leading dot, to the leading dot
+                    val colorFilterAlpha = when (degree) {
+                        (currentDegree - (stepValue * 6)) -> 0.0f
+                        (currentDegree - (stepValue * 5)) -> 0.2f
+                        (currentDegree - (stepValue * 4)) -> 0.4f
+                        (currentDegree - (stepValue * 3)) -> 0.6f
+                        (currentDegree - (stepValue * 2)) -> 0.8f
+                        (currentDegree - (stepValue * 1)) -> 1f
+                        currentDegree -> 1f
+                        else -> 0f
                     }
-                    // the leading dot
                     drawCircle(
-                        color = Color.White,
+                        color = dotColor,
                         center = Offset(
-                            x = center.x + (radius * coordinates[i].first),
-                            y = center.y + (radius * coordinates[i].second)
+                            x = center.x + (radius * cos(degree)),
+                            y = center.y + (radius * sin(degree))
                         ),
-                        radius = 4f
+                        radius = 4f,
+                        colorFilter = ColorFilter.tint(
+                            color = Color.White.copy(alpha = colorFilterAlpha),
+                            blendMode = BlendMode.SrcOver
+                        )
                     )
                 }
             }
@@ -171,4 +172,43 @@ fun DottedCircularProgressBackground(
             content = { content() }
         )
     }
+}
+
+@Composable
+private fun CanvasWithDottedCircle(
+    radius: DrawScope.() -> Float,
+    stepValue: Int,
+    modifier: Modifier = Modifier,
+    dotColor: Color = MaterialTheme.colors.primary
+) {
+    Canvas(modifier = modifier) {
+        for (degree in -90..270 step stepValue) {
+            drawCircle(
+                color = dotColor,
+                center = Offset(
+                    x = center.x + (radius() * cos(degree)),
+                    y = center.y + (radius() * sin(degree))
+                ),
+                radius = 4f
+            )
+        }
+    }
+}
+
+/**
+ * A utility function that returns the sine value (in [Float]) of a [degree] represented
+ * as an [Int].
+ */
+private fun sin(degree: Int): Float {
+    val degreesInRadians = Math.toRadians(degree.toDouble())
+    return sin(degreesInRadians).toFloat()
+}
+
+/**
+ * A utility function that returns the cosine value (in [Float]) of a [degree] represented
+ * as an [Int].
+ */
+private fun cos(degree: Int): Float {
+    val degreesInRadians = Math.toRadians(degree.toDouble())
+    return cos(degreesInRadians).toFloat()
 }
