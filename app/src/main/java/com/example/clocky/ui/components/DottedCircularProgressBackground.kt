@@ -15,11 +15,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.MaterialTheme
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -36,6 +35,38 @@ class DottedCircularProgressBackgroundState(isInitiallyRunning: Boolean) {
 
     var isRunning by mutableStateOf(isInitiallyRunning)
         private set
+
+    var numberOfIterationsAroundCircle by mutableStateOf(0)
+        private set
+
+    private var previouslyEmittedDegree: Int? = null
+
+    /**
+     * // todo need to update the docs of this entire class
+     * [transformLatest] has to be used here because of the following reason.
+     * If the transform block of [combine] method gets blocked by an infinite loop (in this case,
+     * an infinite loop of degrees), then any updates to the flows of the [combine] block will not
+     * trigger the [combine] block's transform block, because the transform block is already
+     * performing a blocking operation.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    var currentDegree = combine(
+        snapshotFlow { isReset },
+        snapshotFlow { isRunning }
+    ) { isReset, isRunning -> Pair(isReset, isRunning) }
+        .transformLatest { (isAnimationReset, isAnimationRunning) ->
+            if (isAnimationReset || !isAnimationRunning) return@transformLatest
+            while (isAnimationRunning) {
+                for (i in ((previouslyEmittedDegree ?: -90)..270) step 6) {
+                    delay(30)
+                    emit(i)
+                    previouslyEmittedDegree = i
+                }
+                previouslyEmittedDegree = null
+                numberOfIterationsAroundCircle++
+            }
+        }
+
 
     init {
         // fixme - though the animation starts, if this class is recreated after a config change
@@ -65,6 +96,8 @@ class DottedCircularProgressBackgroundState(isInitiallyRunning: Boolean) {
     fun stopAndReset() {
         isReset = true
         isRunning = false
+        numberOfIterationsAroundCircle = 0
+        previouslyEmittedDegree = null
     }
 
     companion object {
@@ -101,29 +134,11 @@ fun DottedCircularProgressBackground(
     dotColor: Color = MaterialTheme.colors.primary,
     content: @Composable () -> Unit
 ) {
-    var isPrefilledCanvasVisible by remember { mutableStateOf(false) }
-    val stepValue = 6
-    var previouslyEmittedDegree by rememberSaveable { mutableStateOf(-90) }
-    val currentDegree by remember(state.isReset, state.isRunning) {
-        if (state.isReset) {
-            previouslyEmittedDegree = -90
-            isPrefilledCanvasVisible = false
-            return@remember emptyFlow<Int>()
-        }
-        if (!state.isRunning) return@remember emptyFlow<Int>()
-        flow {
-            while (state.isRunning) {
-                for (i in (previouslyEmittedDegree..270) step stepValue) {
-                    delay(30)
-                    emit(i)
-                    previouslyEmittedDegree = i
-                }
-                previouslyEmittedDegree = -90
-                if (!isPrefilledCanvasVisible) isPrefilledCanvasVisible = true
-            }
-        }
-    }.collectAsStateWithLifecycle(initialValue = -90)
-
+    val stepValue = remember { 6 }
+    val currentDegree by state.currentDegree.collectAsState(initial = -90)
+    val isPrefilledCanvasVisible by remember {
+        derivedStateOf { state.numberOfIterationsAroundCircle > 0 }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -174,6 +189,10 @@ fun DottedCircularProgressBackground(
     }
 }
 
+/**
+ * A [Canvas] with it's circumference filled with a Dotted Circle pattern.
+ * // todo update docs
+ */
 @Composable
 private fun CanvasWithDottedCircle(
     radius: DrawScope.() -> Float,
