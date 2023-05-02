@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -26,7 +27,10 @@ import kotlin.math.sin
 /**
  * This class holds the state of the [DottedCircularProgressBackground].
  */
-class DottedCircularProgressBackgroundState(isInitiallyRunning: Boolean) {
+class DottedCircularProgressBackgroundState(
+    isInitiallyRunning: Boolean,
+    initialDegree: Int
+) {
     /**
      * A [State] that indicates whether the animation is in the "Reset" state.
      */
@@ -47,15 +51,12 @@ class DottedCircularProgressBackgroundState(isInitiallyRunning: Boolean) {
         private set
 
     /**
-     * A property that holds the previously emitted degree value. Used to restore
+     * A property that holds the previously emitted degree value. Useful to restore
      * the state of the animation when it is resumed after getting paused.
      */
-    private var previouslyEmittedDegree: Int? = null
+    var previouslyEmittedDegree: Int? = initialDegree
+        private set
 
-    /**
-     * // todo need to update the docs of this entire class
-
-     */
     /**
      * A [Flow] that emits the current degree, from the center of the drawing area, where
      * a dot is about to be drawn.
@@ -123,8 +124,15 @@ class DottedCircularProgressBackgroundState(isInitiallyRunning: Boolean) {
          * [DottedCircularProgressBackgroundState] instance.
          */
         val Saver = listSaver(
-            save = { listOf(it.isRunning) },
-            restore = { DottedCircularProgressBackgroundState(it[0]) }
+            save = {
+                listOf(if (it.isRunning) 1 else 0, it.previouslyEmittedDegree)
+            },
+            restore = {
+                DottedCircularProgressBackgroundState(
+                    isInitiallyRunning = it[0] == 1,
+                    initialDegree = it[1]
+                )
+            }
         )
     }
 }
@@ -136,10 +144,16 @@ class DottedCircularProgressBackgroundState(isInitiallyRunning: Boolean) {
  */
 @Composable
 fun rememberDottedCircularProgressBackgroundState(
-    isInitiallyRunning: Boolean = false
+    isInitiallyRunning: Boolean = false,
+    startDegree: Int = -90
 ): DottedCircularProgressBackgroundState = rememberSaveable(
     saver = DottedCircularProgressBackgroundState.Saver,
-    init = { DottedCircularProgressBackgroundState(isInitiallyRunning = isInitiallyRunning) }
+    init = {
+        DottedCircularProgressBackgroundState(
+            isInitiallyRunning = isInitiallyRunning,
+            initialDegree = startDegree
+        )
+    }
 )
 
 /**
