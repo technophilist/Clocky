@@ -43,7 +43,12 @@ class MainActivity : ComponentActivity() {
     private fun ClockyApp() {
         val elapsedTimeString by elapsedTimeStringStream.collectAsStateWithLifecycle()
         val stopwatchState by stopwatchStateStream.collectAsStateWithLifecycle()
-        val dottedProgressBackgroundState = rememberDottedCircularProgressBackgroundState()
+        val isInitiallyRunning = remember{
+            stopwatchState == StopwatchService.StopwatchState.RUNNING
+        }
+        val dottedProgressBackgroundState = rememberDottedCircularProgressBackgroundState(
+            isInitiallyRunning = isInitiallyRunning
+        )
         val isStopButtonEnabled = remember(stopwatchState) {
             stopwatchState != null && stopwatchState != StopwatchService.StopwatchState.RESET
         }
