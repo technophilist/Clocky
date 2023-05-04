@@ -15,10 +15,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.clocky.ui.components.DottedCircularProgressBackground
-import com.example.clocky.ui.components.DottedCircularProgressBackgroundState
 import com.example.clocky.ui.components.rememberDottedCircularProgressBackgroundState
 import com.example.clocky.ui.stopwatch.Stopwatch
-import com.example.clocky.ui.stopwatch.StopwatchService
+import com.example.clocky.stopwatchservice.StopwatchService
 import com.example.clocky.ui.theme.ClockyTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

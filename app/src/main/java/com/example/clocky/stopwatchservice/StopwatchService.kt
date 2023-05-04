@@ -1,4 +1,4 @@
-package com.example.clocky.ui.stopwatch
+package com.example.clocky.stopwatchservice
 
 import android.app.Service
 import android.content.Intent

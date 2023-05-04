@@ -24,7 +24,7 @@
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
         <service
-            android:name=".ui.stopwatch.StopwatchService"
+            android:name=".stopwatchservice.StopwatchService"
             android:exported="false" />
         <activity
             android:name=".ui.MainActivity"
