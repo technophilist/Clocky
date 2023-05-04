@@ -24,24 +24,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.*
 
 /**
- * A stateful implementation of Stopwatch that makes use of the [StopWatchViewModel].
- */
-@Composable
-fun Stopwatch(stopWatchViewModel: StopWatchViewModel) {
-    val elapsedTimeString by stopWatchViewModel.currentMillisTextStream
-        .collectAsStateWithLifecycle(initialValue = "00:00:00:000")
-    val uiState by stopWatchViewModel.uiState.collectAsStateWithLifecycle()
-    Stopwatch(
-        elapsedTimeText = { elapsedTimeString },
-        onPlayButtonClick = stopWatchViewModel::start,
-        onPauseButtonClick = stopWatchViewModel::pause,
-        onStopButtonClick = stopWatchViewModel::stopAndReset,
-        isStopButtonEnabled = uiState != StopWatchViewModel.UiState.RESET,
-        isStopwatchRunning = uiState == StopWatchViewModel.UiState.RUNNING
-    )
-}
-
-/**
  * A stopwatch composable.
  *
  * @param elapsedTimeText A lambda that returns the current elapsed time as a string.
