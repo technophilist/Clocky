@@ -171,7 +171,22 @@ fun rememberDottedCircularProgressBackgroundState(
 )
 
 /**
- * todo - need to explain how the math behind this composable works
+ * A composable that displays a dotted circular animation behind the [content].
+ *
+ * **A quick summary of how the math behind this composable works :**
+ * This composable makes use of the "Definition of the Unit Circle using foundational trigonometric
+ * functions" to draw dots along the circumference of the circle. The white tint of the dots
+ * are decided based on how far away a dot is, from the "leading dot".
+ *
+ * **A note on efficiency :**
+ * Once an entire revolution around the circumference is made, the [CanvasWithDottedCircle]
+ * would be composed on the background of the currently running animation. This gives a
+ * unique look to the animation, that makes it look as if a streak of white light is revolving
+ * around the circumference.
+ *
+ * @param state an instance of [DottedCircularProgressBackgroundState], that controls the state of
+ * the composable.
+ * @param dotColor the color of the dots that appear along the circumference of the circle.
  */
 @Composable
 fun DottedCircularProgressBackground(
@@ -236,7 +251,6 @@ fun DottedCircularProgressBackground(
 
 /**
  * A [Canvas] with it's circumference filled with a Dotted Circle pattern.
- * // todo update docs
  */
 @Composable
 private fun CanvasWithDottedCircle(
