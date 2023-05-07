@@ -54,7 +54,7 @@ class DottedCircularProgressBackgroundState(
      * A property that holds the previously emitted degree value. Useful to restore
      * the state of the animation when it is resumed after getting paused.
      */
-    var previouslyEmittedDegree: Int? = initialDegree
+    var previouslyEmittedDegree: Int = initialDegree
         private set
 
     /**
@@ -73,14 +73,19 @@ class DottedCircularProgressBackgroundState(
         snapshotFlow { isRunning }
     ) { isReset, isRunning -> Pair(isReset, isRunning) }
         .transformLatest { (isAnimationReset, isAnimationRunning) ->
-            if (isAnimationReset || !isAnimationRunning) return@transformLatest
+            if (isAnimationReset) {
+                emit(INITIAL_DEGREE)
+                resetPreviouslyEmittedDegree()
+                return@transformLatest
+            }
+            if (!isAnimationRunning) return@transformLatest
             while (isAnimationRunning) {
-                for (i in ((previouslyEmittedDegree ?: -90)..270) step 6) {
+                for (i in (previouslyEmittedDegree..270) step 6) {
                     delay(30)
                     emit(i)
                     previouslyEmittedDegree = i
                 }
-                previouslyEmittedDegree = null
+                resetPreviouslyEmittedDegree()
                 numberOfIterationsAroundCircle++
             }
         }
@@ -115,7 +120,14 @@ class DottedCircularProgressBackgroundState(
         isReset = true
         isRunning = false
         numberOfIterationsAroundCircle = 0
-        previouslyEmittedDegree = null
+        resetPreviouslyEmittedDegree()
+    }
+
+    /**
+     * Used to reset the previously emitted degree to [INITIAL_DEGREE].
+     */
+    private fun resetPreviouslyEmittedDegree() {
+        previouslyEmittedDegree = INITIAL_DEGREE
     }
 
     companion object {
@@ -134,6 +146,8 @@ class DottedCircularProgressBackgroundState(
                 )
             }
         )
+
+        const val INITIAL_DEGREE = -90
     }
 }
 
