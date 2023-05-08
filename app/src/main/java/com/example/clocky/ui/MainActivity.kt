@@ -76,6 +76,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        if (
+            isStopwatchServiceRunning() &&
+            stopwatchStateStream.value == StopwatchService.StopwatchState.RESET
+        ) stopStopwatchService()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         serviceConnection?.let(::unbindService)
