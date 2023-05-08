@@ -11,7 +11,7 @@ complex animation using the Canvas API, with the help of Trigonometry. The desig
 4. [Source code & Architecture](#source-code-and-architecture)
 
 # Demo
-https://user-images.githubusercontent.com/54663474/236147643-166161d4-f5dd-48a7-a179-5c718269ab00.mp4
+https://user-images.githubusercontent.com/54663474/236858026-e35be0b9-5769-47fa-bd93-0bb8224b99a3.mp4
 
 # Screenshots
 ![screenshot_of_stopwatch_in_reset_state](screenshots/reset.png) &nbsp; &nbsp; ![screenshot_of_stopwatch_in_running_state](screenshots/running.png)
