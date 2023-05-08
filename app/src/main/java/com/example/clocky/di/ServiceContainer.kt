@@ -5,8 +5,11 @@ import com.example.clocky.domain.stopwatch.Stopwatch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import android.app.Service
+import android.content.Context
 import com.example.clocky.domain.millisformatter.ClockyMillisFormatter
 import com.example.clocky.domain.millisformatter.MillisFormatter
+import com.example.clocky.stopwatchservice.notification.ClockyStopwatchNotificationBuilder
+import com.example.clocky.stopwatchservice.notification.StopwatchNotificationBuilder
 
 /**
  * A DI container for dependencies that are to be injected in a [Service].
@@ -26,4 +29,11 @@ class ServiceContainer {
      * Provides a concrete implementation of [MillisFormatter].
      */
     fun provideMillisFormatter(): MillisFormatter = ClockyMillisFormatter()
+
+    /**
+     * Provides a concrete implementation of [StopwatchNotificationBuilder].
+     */
+    fun provideStopwatchNotificationBuilder(context: Context): StopwatchNotificationBuilder {
+        return ClockyStopwatchNotificationBuilder(context)
+    }
 }
