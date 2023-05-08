@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 /**
  * An implementation of [MillisFormatter] that formats time in the "HH:mm:ss:SS" pattern.
  */
-class ClockyMillisFormatter : MillisFormatter {
+class MillisInFullTimeStringFormatter : MillisFormatter {
     /**
      * The date time formatter used to format the millis.
      */

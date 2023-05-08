@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import android.app.Service
 import android.content.Context
-import com.example.clocky.domain.millisformatter.ClockyMillisFormatter
+import com.example.clocky.domain.millisformatter.MillisInFullTimeStringFormatter
 import com.example.clocky.domain.millisformatter.MillisFormatter
 import com.example.clocky.domain.millisformatter.MillisInSecondsFormatter
 import com.example.clocky.stopwatchservice.notification.ClockyStopwatchNotificationBuilder
@@ -33,12 +33,12 @@ class ServiceContainer {
         message = "Use provideDefaultMillisFormatter()",
         replaceWith = ReplaceWith("provideDefaultMillisFormatter()")
     )
-    fun provideMillisFormatter(): MillisFormatter = ClockyMillisFormatter()
+    fun provideMillisFormatter(): MillisFormatter = MillisInFullTimeStringFormatter()
 
     /**
-     * Provides an instance of [ClockyMillisFormatter].
+     * Provides an instance of [MillisInFullTimeStringFormatter].
      */
-    fun provideDefaultMillisFormatter(): MillisFormatter = ClockyMillisFormatter()
+    fun provideDefaultMillisFormatter(): MillisFormatter = MillisInFullTimeStringFormatter()
 
     /**
      * Provides an instance of [MillisInSecondsFormatter].

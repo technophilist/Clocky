@@ -4,7 +4,7 @@ import org.junit.Test
 
 class ClockyMillisFormatterTest{
 
-    private val millisFormatter = ClockyMillisFormatter()
+    private val millisFormatter = MillisInFullTimeStringFormatter()
 
     @Test
     fun `Millis formatting test`(){
