@@ -162,8 +162,4 @@ class MainActivity : ComponentActivity() {
         state: Lifecycle.State = Lifecycle.State.STARTED,
         block: suspend CoroutineScope.() -> Unit
     ): Job = lifecycleScope.launch { repeatOnLifecycle(state, block) }
-
-    private fun buildNotification() {
-
-    }
 }
