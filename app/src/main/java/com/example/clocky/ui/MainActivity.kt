@@ -10,6 +10,7 @@ import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -42,7 +43,7 @@ class MainActivity : ComponentActivity() {
     private fun ClockyApp() {
         val elapsedTimeString by elapsedTimeStringStream.collectAsStateWithLifecycle()
         val stopwatchState by stopwatchStateStream.collectAsStateWithLifecycle()
-        val isInitiallyRunning = remember{
+        val isInitiallyRunning = remember {
             stopwatchState == StopwatchService.StopwatchState.RUNNING
         }
         val dottedProgressBackgroundState = rememberDottedCircularProgressBackgroundState(
@@ -101,7 +102,7 @@ class MainActivity : ComponentActivity() {
      */
     private fun startStopwatchService() {
         val intent = Intent(this, StopwatchService::class.java)
-        startService(intent)
+        ActivityCompat.startForegroundService(this, intent)
     }
 
     /**
@@ -161,4 +162,8 @@ class MainActivity : ComponentActivity() {
         state: Lifecycle.State = Lifecycle.State.STARTED,
         block: suspend CoroutineScope.() -> Unit
     ): Job = lifecycleScope.launch { repeatOnLifecycle(state, block) }
+
+    private fun buildNotification() {
+
+    }
 }
