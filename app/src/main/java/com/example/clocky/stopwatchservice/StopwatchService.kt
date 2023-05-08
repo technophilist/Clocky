@@ -40,7 +40,10 @@ class StopwatchService : Service() {
             millisToSecondsFormatter = provideMillisInSecondsFormatter()
             formattedElapsedMillisStream = stopwatch
                 .millisElapsedStream
-                .map(millisInTimeStringFormatter::formatMillis)
+                .map {
+                    millisInTimeStringFormatter
+                        .formatMillis(millis = it, timeZoneId = "Etc/GMT")
+                }
             notificationBuilder = provideStopwatchNotificationBuilder(this@StopwatchService)
         }
     }
@@ -54,7 +57,7 @@ class StopwatchService : Service() {
             stopwatch.start()
         }
         stopwatch.millisElapsedStream
-            .map(millisToSecondsFormatter::formatMillis)
+            .map { millisToSecondsFormatter.formatMillis(millis = it, timeZoneId = "Etc/GMT") }
             .distinctUntilChanged()
             .onEach(::createOrUpdateNotification)
             .launchIn(serviceScope)

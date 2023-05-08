@@ -7,5 +7,5 @@ fun interface MillisFormatter {
     /**
      * Formats the given [millis]as a [String].
      */
-    fun formatMillis(millis: Long): String
+    fun formatMillis(millis: Long, timeZoneId: String): String
 }
