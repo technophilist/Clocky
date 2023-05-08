@@ -1,10 +1,15 @@
 package com.example.clocky.stopwatchservice
 
+import android.Manifest
 import android.app.Service
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import com.example.clocky.BuildConfig
 import com.example.clocky.di.ClockyApplication
 import com.example.clocky.domain.millisformatter.MillisFormatter
 import com.example.clocky.domain.stopwatch.Stopwatch
@@ -64,7 +69,11 @@ class StopwatchService : Service() {
     }
 
     private fun createOrUpdateNotification(timeText: String) {
-        // fixme
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val isPostNotificationsPermissionsGranted =
+                checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            if (!isPostNotificationsPermissionsGranted) return
+        }
         notificationManager.notify(
             FOREGROUND_NOTIFICATION_ID,
             notificationBuilder.buildNotification(timeText)
