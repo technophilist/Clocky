@@ -8,6 +8,7 @@ import android.app.Service
 import android.content.Context
 import com.example.clocky.domain.millisformatter.ClockyMillisFormatter
 import com.example.clocky.domain.millisformatter.MillisFormatter
+import com.example.clocky.domain.millisformatter.MillisInSecondsFormatter
 import com.example.clocky.stopwatchservice.notification.ClockyStopwatchNotificationBuilder
 import com.example.clocky.stopwatchservice.notification.StopwatchNotificationBuilder
 
@@ -28,7 +29,21 @@ class ServiceContainer {
     /**
      * Provides a concrete implementation of [MillisFormatter].
      */
+    @Deprecated(
+        message = "Use provideDefaultMillisFormatter()",
+        replaceWith = ReplaceWith("provideDefaultMillisFormatter()")
+    )
     fun provideMillisFormatter(): MillisFormatter = ClockyMillisFormatter()
+
+    /**
+     * Provides an instance of [ClockyMillisFormatter].
+     */
+    fun provideDefaultMillisFormatter(): MillisFormatter = ClockyMillisFormatter()
+
+    /**
+     * Provides an instance of [MillisInSecondsFormatter].
+     */
+    fun provideMillisInSecondsFormatter() = MillisInSecondsFormatter()
 
     /**
      * Provides a concrete implementation of [StopwatchNotificationBuilder].
