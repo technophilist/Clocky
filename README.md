@@ -30,5 +30,5 @@ https://user-images.githubusercontent.com/54663474/236858026-e35be0b9-5769-47fa-
 - Manual Dependency injection.
 
 ## Modularization Strategy
-In this project, a package is considered as single module. Although, this is a small app, the package structure tries to conform to the modularization strategy specified in the 
+In this project, a package is considered as a single module. Although, this is a small app, the package structure tries to conform to the modularization strategy specified in the 
 [Guide to Android app modularization](https://developer.android.com/topic/modularization) article of the offical Android Developers website.
