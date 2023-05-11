@@ -1,5 +1,5 @@
 # Clocky ⏱ 
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
 
 A fun little stopwatch app for Wear OS. The main aim of creating this app was to try out Jetpack compose for Wear OS, and also to try building a
 complex animation using the Canvas API, with the help of Trigonometry. The design is heavily inspired from the default stopwatch app. 
