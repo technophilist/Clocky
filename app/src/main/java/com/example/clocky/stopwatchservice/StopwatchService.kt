@@ -101,7 +101,7 @@ class StopwatchService : Service() {
             FOREGROUND_NOTIFICATION_ID,
             notificationBuilder.buildNotification("00:00")
         )
-        return START_NOT_STICKY // todo check
+        return START_NOT_STICKY
     }
 
     override fun onBind(intent: Intent): IBinder = stopwatchServiceBinder
